@@ -3,29 +3,59 @@ import './App.scss';
 
 interface IState {
 	count: number;
+	newCount: string;
+	message: string;
 }
 
 enum IActionType {
 	INCREMENT = 'INCREMENT',
 	DECREMENT = 'DECREMENT',
+	RESET = 'RESET',
+	UPDATENEWCOUNT = 'UPDATENEWCOUNT',
+	SETCOUNT = 'SETCOUNT',
 }
 
 interface IAction {
-	type: IActionType,
-	payload: number
+	type: IActionType;
+	payload: any;
 }
 
 const initialState: IState = {
 	count: 0,
+	newCount: '',
+	message: '',
 };
 
 const reducer = (state: IState, action: IAction): IState => {
 	switch (action.type) {
 		case IActionType.INCREMENT:
 			state.count++;
+			state.newCount = '';
+			state.message = '';
 			break;
 		case IActionType.DECREMENT:
 			state.count--;
+			state.newCount = '';
+			state.message = '';
+			break;
+		case IActionType.RESET:
+			state.count = 0;
+			state.newCount = '';
+			state.message = '';
+			break;
+		case IActionType.UPDATENEWCOUNT:
+			state.newCount = action.payload;
+			break;
+		case IActionType.SETCOUNT:
+			const strNum = action.payload;
+			const num = Number(strNum);
+			if (!isNaN(num)) {
+				state.count = num;
+				state.newCount = '';
+				state.message = '';
+			} else {
+				state.message = `"${strNum}" is not a number`;
+			}
 			break;
 	}
 	return { ...state };
@@ -36,11 +66,55 @@ function App() {
 	return (
 		<div className="App">
 			<h1>Info Site</h1>
-			<p>Count: {state.count}</p>
+			<p className="theCount">Count: {state.count}</p>
 			<div className="buttonArea">
-				<button onClick={() => dispatch({type: IActionType.DECREMENT, payload: 0})}>-</button>
-				<button onClick={() => dispatch({type: IActionType.INCREMENT, payload: 0})}>+</button>
+				<button
+					onClick={() =>
+						dispatch({ type: IActionType.DECREMENT, payload: 0 })
+					}
+				>
+					-
+				</button>
+				<button
+					onClick={() =>
+						dispatch({ type: IActionType.INCREMENT, payload: 0 })
+					}
+				>
+					+
+				</button>
 			</div>
+			<div className="buttonAreaExtra">
+				<button
+					onClick={() =>
+						dispatch({ type: IActionType.RESET, payload: 0 })
+					}
+				>
+					Reset
+				</button>
+			</div>
+			<div className="buttonAreaExtra">
+				<input
+					type="text"
+					value={state.newCount}
+					onChange={(e) =>
+						dispatch({
+							type: IActionType.UPDATENEWCOUNT,
+							payload: e.target.value,
+						})
+					}
+				/>
+				<button
+					onClick={() =>
+						dispatch({
+							type: IActionType.SETCOUNT,
+							payload: state.newCount,
+						})
+					}
+				>
+					Save
+				</button>
+			</div>
+			<p>{state.message}</p>
 		</div>
 	);
 }
